@@ -3,28 +3,31 @@ using Cinemachine;
 
 public class CameraController : MonoBehaviour
 {
-    public CinemachineVirtualCamera virtualCamera; // Cinemachine Virtual Camera 참조
-    public float mouseSensitivity = 100f; // 마우스 감도 설정
-    public Transform playerBody; // 플레이어 Transform
+    private CinemachineVirtualCamera _virtualCamera; // Cinemachine Virtual Camera 참조
+    private float _mouseSensitivity = 100f; // 마우스 감도 설정
+    [SerializeField]
+    private Transform _playerBody; // 플레이어 Transform
 
-    private float xRotation = 0f; // 상하 회전을 위한 변수
-    private CinemachineTransposer transposer; // 카메라의 Transposer 참조
+    private float _xRotation = 0f; // 상하 회전을 위한 변수
+    private CinemachineTransposer _transposer; // 카메라의 Transposer 참조
 
     void Start()
     {
-        if (virtualCamera == null)
+        if (_virtualCamera == null)
         {
-            virtualCamera = GetComponent<CinemachineVirtualCamera>();
+            _virtualCamera = GetComponent<CinemachineVirtualCamera>();
 
         }
-        playerBody = GameObject.FindGameObjectWithTag("Player").transform;
 
-        virtualCamera.LookAt = playerBody;
-        virtualCamera.Follow = playerBody;
+        if(_playerBody == null)
+        _playerBody = GameObject.FindGameObjectWithTag("Player").transform;
+
+        _virtualCamera.LookAt = _playerBody;
+        _virtualCamera.Follow = _playerBody;
 
         Cursor.lockState = CursorLockMode.Locked; // 마우스 커서를 잠금 상태로 설정
 
-        transposer = virtualCamera.GetCinemachineComponent<CinemachineTransposer>();
+        _transposer = _virtualCamera.GetCinemachineComponent<CinemachineTransposer>();
     }
 
     void Update()
@@ -35,19 +38,19 @@ public class CameraController : MonoBehaviour
     private void HandleCameraRotation()
     {
         // 마우스 입력 받아오기
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        float mouseX = Input.GetAxis("Mouse X") * _mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * _mouseSensitivity * Time.deltaTime;
 
         // 현재 카메라 각도 업데이트
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -20f, 70f); // 상하 회전 각도를 -30도와 70도로 제한
+        _xRotation -= mouseY;
+        _xRotation = Mathf.Clamp(_xRotation, -20f, 40f); // 상하 회전 각도를 -30도와 70도로 제한
 
         // 플레이어의 좌우 회전
-        playerBody.Rotate(Vector3.up * mouseX);
+        _playerBody.Rotate(Vector3.up * mouseX);
 
         // 카메라의 상하 회전 적용
-        Vector3 followOffset = transposer.m_FollowOffset;
-        followOffset.y = Mathf.Tan(Mathf.Deg2Rad * xRotation) * Mathf.Abs(followOffset.z);
-        transposer.m_FollowOffset = followOffset;
+        Vector3 followOffset = _transposer.m_FollowOffset;
+        followOffset.y = Mathf.Tan(Mathf.Deg2Rad * _xRotation) * Mathf.Abs(followOffset.z);
+        _transposer.m_FollowOffset = followOffset;
     }
 }
