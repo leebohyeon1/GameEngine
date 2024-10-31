@@ -5,5 +5,6 @@ public interface IPlayerState
 {
     void Enter(Player player);
     void UpdateState(Player player);
+    void FixedUpdateState(Player player);
     void Exit(Player player);
 }

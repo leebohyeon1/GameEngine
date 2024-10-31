@@ -8,10 +8,12 @@ public class InputManager : Singleton<InputManager>
     private PlayerInput _playerInput;
 
     private InputAction _moveAction;
+    private InputAction _runAction;
     private InputAction _jumpAction;
     private InputAction _slidieAction;
 
     public Vector2 MoveInput { get; private set; }
+    public bool RunInput { get; private set; }
     public bool JumpInput { get; private set; }
     public bool SlideInput { get; private set; }
 
@@ -39,11 +41,14 @@ public class InputManager : Singleton<InputManager>
         _moveAction = _playerInput.actions["Move"];
         _jumpAction = _playerInput.actions["Jump"];
         _slidieAction = _playerInput.actions["Slide"];
+        _runAction = _playerInput.actions["Run"];
     }
 
     private void HandleActions()
     {
         MoveInput = _moveAction.ReadValue<Vector2>();
+
+        RunInput = _runAction.IsPressed();
 
         JumpInput = _jumpAction.WasPressedThisFrame();
 
