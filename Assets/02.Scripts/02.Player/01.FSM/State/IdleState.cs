@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class IdleState : FSMState
 {
+    // 가만히 있는 상태일 때
+
     public IdleState(FSMBase fsm) : base(fsm) { }
 
     public override void OnEnter(PlayerController player)
@@ -17,6 +19,11 @@ public class IdleState : FSMState
         if(InputManager.Instance.MoveInput.magnitude > 0 )
         {
             player.SetState("Move");
+        }
+
+        if (InputManager.Instance.JumpInput)
+        {
+            player.Jump();
         }
     }
 

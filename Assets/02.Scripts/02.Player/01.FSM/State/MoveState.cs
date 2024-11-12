@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class MoveState : FSMState
 {
+    // 걷는 상태일 때
+
     public MoveState(FSMBase fsm) : base(fsm) { }
 
     public override void OnEnter(PlayerController player)
@@ -12,6 +14,11 @@ public class MoveState : FSMState
 
     public override void OnUpdate(PlayerController player)
     {
+        if (InputManager.Instance.JumpInput)
+        {
+            player.Jump();
+        }
+
         // 이동 로직 구현
         player.Move();
         player.Rotate();
@@ -20,6 +27,8 @@ public class MoveState : FSMState
         {
             player.SetState("Idle");
         }
+
+    
     }
 
     public override void OnExit(PlayerController player)

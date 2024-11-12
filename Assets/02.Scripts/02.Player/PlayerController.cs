@@ -19,6 +19,9 @@ public class PlayerController : MonoBehaviour
     #region Stat
     [Space(20f)]
     [SerializeField] private float _moveSpeed; //이동 속도
+    [SerializeField] private float _jumpHeight = 2f; // 점프 높이
+    [SerializeField] private float _gravity = -9.81f; // 중력
+
     [SerializeField] private float _xRotationSpeed = 5f; // 회전 속도
     [SerializeField] private float _yRotationSpeed = 5f; // 회전 속도
 
@@ -28,6 +31,8 @@ public class PlayerController : MonoBehaviour
 
     private float _rotationY;
     private float _currentOffsetY;
+    private Vector3 _velocity;
+    private bool _isGrounded;
 
     private void Awake()
     {
@@ -52,7 +57,11 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        CheckGround();
+
         _fsm.Update(this);
+
+       
     }
 
     #region InitialFunc
@@ -62,6 +71,10 @@ public class PlayerController : MonoBehaviour
         _fsm = new FSMBase();
         _fsm.AddState("Idle", new IdleState(_fsm));
         _fsm.AddState("Move", new MoveState(_fsm));
+        _fsm.AddState("JumpUp", new JumpUpState(_fsm));
+        _fsm.AddState("Fall", new FallState(_fsm));
+        _fsm.AddState("JumpDown", new JumpDownState(_fsm));
+
 
         _fsm.SetState("Idle", this);
     }
@@ -95,6 +108,8 @@ public class PlayerController : MonoBehaviour
         // 블렌드 트리에 파라미터값 입력
         Animator.SetFloat("XDir", moveInput.x);
         Animator.SetFloat("YDir", moveInput.y);
+
+        SetGravity();
     }
 
     public void Rotate()
@@ -115,6 +130,52 @@ public class PlayerController : MonoBehaviour
         offset.y = _currentOffsetY;
         transposer.m_FollowOffset = offset;
     }
+
+    public void Jump()
+    {
+        if (_isGrounded)
+        {
+            // 현재 이동 방향을 점프 벡터에 추가
+            Vector2 moveInput = _inputManager.MoveInput;
+            Vector3 forward = _cameraTransform.forward;
+            Vector3 right = _cameraTransform.right;
+
+            forward.y = 0;
+            right.y = 0;
+            forward.Normalize();
+            right.Normalize();
+
+            // 현재 이동 방향 설정
+            Vector3 moveDirection = (forward * moveInput.y + right * moveInput.x).normalized;
+
+            // 이동 방향과 점프 높이를 함께 반영
+            _velocity = moveDirection * _moveSpeed + Vector3.up * Mathf.Sqrt(_jumpHeight * -2f * _gravity);
+
+            SetGravity();
+            SetState("JumpUp");
+        }
+    }
+
+    private void CheckGround()
+    {
+        // 지면에 닿아 있는지 확인
+        _isGrounded = _characterController.isGrounded;
+        if (_isGrounded && _velocity.y < 0)
+        {
+            _velocity.x = 0f;
+            _velocity.z = 0f;
+            _velocity.y = -1f;
+        }
+        else if(!_isGrounded)
+        {
+            SetGravity();
+            if (_velocity.y < -1.5f && !_fsm.IsSameState("Fall"))
+            {
+                SetState("Fall");
+            }
+        }
+        
+    }
     #endregion
 
     #region SetFunc
@@ -122,6 +183,20 @@ public class PlayerController : MonoBehaviour
     public void SetState(string key)
     {
         _fsm.SetState(key, this);
+    }
+
+    private void SetGravity()
+    {
+        // 중력 적용
+        _velocity.y += _gravity * Time.deltaTime;
+        _characterController.Move(_velocity * Time.deltaTime);
+    }
+    #endregion
+
+    #region GetFunc
+    public bool GetIsGround()
+    {
+        return _isGrounded;
     }
 
     #endregion
