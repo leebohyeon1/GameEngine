@@ -1,14 +1,17 @@
 using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
     private InputManager _inputManager;
     private CharacterController _characterController;
-    private PlayerMovement _playerMovement;
+    public ObjectBuilder ObjectBuilder { get; private set; }
+
     private FSMBase _fsm;
 
     private Transform _cameraTransform;
@@ -36,8 +39,8 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        _playerMovement = GetComponent<PlayerMovement>();
         _characterController = GetComponent<CharacterController>();
+        ObjectBuilder = GetComponent<ObjectBuilder>(); 
         Animator = GetComponent<Animator>();
 
         SetFSM();
@@ -58,10 +61,14 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         CheckGround();
+        _characterController.Move(_velocity * _moveSpeed * Time.deltaTime);
 
         _fsm.Update(this);
+    }
 
-       
+    private void FixedUpdate()
+    {
+        _fsm.FixedUpdate(this);
     }
 
     #region InitialFunc
@@ -74,7 +81,7 @@ public class PlayerController : MonoBehaviour
         _fsm.AddState("JumpUp", new JumpUpState(_fsm));
         _fsm.AddState("Fall", new FallState(_fsm));
         _fsm.AddState("JumpDown", new JumpDownState(_fsm));
-
+        _fsm.AddState("Place", new PlaceState(_fsm));
 
         _fsm.SetState("Idle", this);
     }
@@ -103,13 +110,12 @@ public class PlayerController : MonoBehaviour
         Vector3 moveDirection = (forward * moveInput.y + right * moveInput.x).normalized;
 
         // 플레이어 이동
-        _characterController.Move(moveDirection * _moveSpeed * Time.deltaTime);
+        _velocity.x = moveDirection.x;
+        _velocity.z = moveDirection.z;
 
         // 블렌드 트리에 파라미터값 입력
         Animator.SetFloat("XDir", moveInput.x);
         Animator.SetFloat("YDir", moveInput.y);
-
-        SetGravity();
     }
 
     public void Rotate()
@@ -162,8 +168,6 @@ public class PlayerController : MonoBehaviour
         _isGrounded = _characterController.isGrounded;
         if (_isGrounded && _velocity.y < 0)
         {
-            _velocity.x = 0f;
-            _velocity.z = 0f;
             _velocity.y = -1f;
         }
         else if(!_isGrounded)
@@ -176,6 +180,7 @@ public class PlayerController : MonoBehaviour
         }
         
     }
+
     #endregion
 
     #region SetFunc
@@ -185,12 +190,17 @@ public class PlayerController : MonoBehaviour
         _fsm.SetState(key, this);
     }
 
-    private void SetGravity()
+    public void SetGravity()
     {
         // 중력 적용
         _velocity.y += _gravity * Time.deltaTime;
-        _characterController.Move(_velocity * Time.deltaTime);
     }
+
+    public void SetZeroVelocity()
+    {
+        _velocity = Vector3.zero;
+    }
+
     #endregion
 
     #region GetFunc

@@ -17,6 +17,21 @@ public class JumpUpState : FSMState
     public override void OnUpdate(PlayerController player)
     {
 
+
+        if (InputManager.Instance.IsPlaceMode)
+        {
+            player.Animator.SetBool("PlaceMode", true);
+            if (InputManager.Instance.PlaceInput)
+            {
+                player.SetState("Place");
+            }
+        }
+        else
+        {
+            player.Animator.SetBool("PlaceMode", false);
+        }
+        player.ObjectBuilder.HandleBuildingInput(InputManager.Instance.IsPlaceMode, InputManager.Instance.PlaceInput);
+
     }
 
     public override void OnExit(PlayerController player)

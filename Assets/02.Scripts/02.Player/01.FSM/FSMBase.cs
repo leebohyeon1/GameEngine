@@ -27,6 +27,11 @@ public class FSMBase
         _currentState?.OnUpdate(player);
     }
 
+    public void FixedUpdate(PlayerController player)
+    {
+        _currentState?.OnFixedUpdate(player);
+    }
+
     public bool IsSameState(string key)
     {
         return _states[key] == _currentState;

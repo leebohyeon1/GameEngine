@@ -10,6 +10,10 @@ public class JumpDownState : FSMState
     public override void OnEnter(PlayerController player)
     {
         player.Animator.SetTrigger("Landing");
+        player.SetZeroVelocity();
+
+        player.Animator.SetBool("PlaceMode", false);
+        player.ObjectBuilder.HandleBuildingInput(false,false);
     }
 
     public override void OnUpdate(PlayerController player)
@@ -19,5 +23,6 @@ public class JumpDownState : FSMState
 
     public override void OnExit(PlayerController player)
     {
+
     }
 }
