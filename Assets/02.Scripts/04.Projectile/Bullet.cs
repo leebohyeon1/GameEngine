@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    private float _damage;
+    private int _damage;
     
     private float _timer;
 
@@ -41,7 +41,7 @@ public class Bullet : MonoBehaviour
     }
 
 
-    public void SetDamage(float damage)
+    public void SetDamage(int damage)
     {
         _damage = damage;
     }

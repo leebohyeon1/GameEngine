@@ -53,7 +53,7 @@ public class SpawnManger : MonoBehaviour
 
     private void Spawn(GameObject gameObject)
     {
-        if(_energyGenerator == null)
+        if(GameManager.Instance.GetCurGameState() == GameState.GameOver)
         {
             return;
         }
@@ -62,5 +62,7 @@ public class SpawnManger : MonoBehaviour
         
         Enemy enemy = enemyObject.GetComponent<Enemy>();
         enemy.SetTarget(_energyGenerator);
+
+        GameManager.Instance.AddEnemy(enemy);
     }
 }

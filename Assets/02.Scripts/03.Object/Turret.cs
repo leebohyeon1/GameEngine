@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Turret : MonoBehaviour
+public class Turret : BuildObject
 {
     [SerializeField] private Transform _turretBody;
     [SerializeField] private Transform _gunBarrel;
@@ -14,7 +14,7 @@ public class Turret : MonoBehaviour
 
     [Space(20f)]
     [SerializeField] private float _attackRange;
-    [SerializeField] private float _attackDamage;
+    [SerializeField] private int _attackDamage;
     [SerializeField] private float _attackSpeed;
     [SerializeField] private float _bulletSpeed;
 
@@ -67,7 +67,12 @@ public class Turret : MonoBehaviour
             }
         }
 
-        _target = curTarget;
+        if (curTarget != null)
+        {
+            Enemy enemyCom = curTarget.GetComponent<Enemy>();
+
+            _target = enemyCom.GetAttackPoint();
+        }
     }
 
     private void LookTarget()

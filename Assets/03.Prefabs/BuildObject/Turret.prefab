@@ -153,8 +153,8 @@ MonoBehaviour:
     m_Bits: 256
   _attackRange: 16.95
   _attackDamage: 2
-  _attackSpeed: 0.7
-  _bulletSpeed: 7
+  _attackSpeed: 1.3
+  _bulletSpeed: 10
   _rotationSpeed: 1.5
 --- !u!1 &1568089721674269404
 GameObject:

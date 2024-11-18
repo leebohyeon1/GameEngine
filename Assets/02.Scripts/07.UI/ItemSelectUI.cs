@@ -6,15 +6,14 @@ using UnityEngine.UI;
 
 public class ItemSelectUI : MonoBehaviour
 {
-    private GameObject _curItem;
     private PlayerController _playerController;
 
-    [SerializeField] private ItemSelection[] _items;
+    [SerializeField] private Image[] _itemImages;
  
 
     private void OnEnable()
     {
-        for (int i = 0; i < _items.Length; i++)
+        for (int i = 0; i < _itemImages.Length; i++)
         {
             UnSelectItem(i);
         }
@@ -27,22 +26,16 @@ public class ItemSelectUI : MonoBehaviour
 
     public void SelectItem(int index)
     {
-        _items[index].ItemImage.color = new Color(1, 1, 1, 0.5f);
+        Item item = GameManager.Instance.GetItem(index);
 
-        _curItem = _items[index].ItemPrefab;
-        _playerController.ObjectBuilder.SetObject(_curItem);
+        _itemImages[index].color = new Color(1, 1, 1, 0.5f);
+        _playerController.ObjectBuilder.SetObject(item.ItemPrefab, item.price);
     }
 
     public void UnSelectItem(int index)
     {
-        _items[index].ItemImage.color = new Color(0, 0, 0, 0.5f);
+        _itemImages[index].color = new Color(0, 0, 0, 0.5f);
     }
 }
 
-[System.Serializable]
-public class ItemSelection
-{
-    public Image ItemImage;
-    public GameObject ItemPrefab;
-}
 

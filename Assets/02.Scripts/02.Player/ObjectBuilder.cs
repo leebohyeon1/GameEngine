@@ -16,6 +16,7 @@ public class ObjectBuilder : MonoBehaviour
     private Renderer[] _objectRenderers; // 오브젝트 프리뷰의 모든 Renderer
     private List<GameObject> _placedObjects = new List<GameObject>(); // 설치된 오브젝트 추적 리스트
     private bool _canPlace = false; // 설치가능 여부
+    private int _price = 0;
 
     private Transform _cameraTransform; // 카메라 Transform
 
@@ -73,9 +74,9 @@ public class ObjectBuilder : MonoBehaviour
         
         _objectRenderers = _objectPreview.GetComponentsInChildren<Renderer>(); // 모든 Renderer 참조 가져오기
 
-        if (_objectPreview.GetComponent<Turret>() != null)
+        if (_objectPreview.GetComponent<BuildObject>() != null)
         {
-            _objectPreview.GetComponent<Turret>().enabled = false;
+            _objectPreview.GetComponent<BuildObject>().enabled = false;
         }
 
         _objectPreview.GetComponentInChildren<NavMeshObstacle>().enabled = false;
@@ -103,7 +104,8 @@ public class ObjectBuilder : MonoBehaviour
         // 레이를 그려서 시각적으로 확인
         Debug.DrawRay(ray.origin, ray.direction * _maxBuildDistance, Color.green);
 
-        if (Physics.Raycast(ray, out RaycastHit hit, _maxBuildDistance, _buildableSurfaceLayer))
+        if (GameManager.Instance.GetMoney() >= _price &&
+            Physics.Raycast(ray, out RaycastHit hit, _maxBuildDistance, _buildableSurfaceLayer))
         {
             // 목표 위치와 회전을 설정
             _objectPreview.transform.position = hit.point;
@@ -145,6 +147,7 @@ public class ObjectBuilder : MonoBehaviour
             GameObject placedObject = Instantiate(_objectPrefab, buildPosition, buildRotation);
             ObjectClones.Add(placedObject);
 
+            GameManager.Instance.DecreaseMoney(_price);
         }
         else
         {
@@ -240,8 +243,9 @@ public class ObjectBuilder : MonoBehaviour
         return ObjectClones;
     }
 
-    public void SetObject(GameObject obj)
+    public void SetObject(GameObject obj, int price)
     {
         _objectPrefab = obj;
+        _price = price;
     }
 }

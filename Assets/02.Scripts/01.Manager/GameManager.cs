@@ -15,22 +15,44 @@ public class GameManager : Singleton<GameManager>
 {
     [SerializeField] private SpawnManger _spawnManger;
 
-    private GameState _curGameState;
+    [SerializeField] private Item[] items;
+
+    private GameState _curGameState; // 현재 게임 상태
     private Transform _energyGenerator;
+
+    private uint _curMoney;
+    private float _curScore;
+
+
+    private List<Enemy> _enemyList = new List<Enemy>();
+
+
 
     // Start is called before the first frame update
     protected override void Start()
     {
         ChangeGameState(GameState.Play);
-        //StartCoroutine(LoadEnvironmentScene());
+
+        IncreaseMoney(15);
     }
 
     // Update is called once per frame
     protected override void Update()
     {
-        
+        if(_curGameState == GameState.Play || _curGameState == GameState.ItemSelect)
+        {
+            UpdateScore();
+        }
     }
 
+
+    public void SetEnergyGenerator(Transform energyGenerator)
+    {
+        _energyGenerator = energyGenerator;
+        _spawnManger.SetEnergyGenerator(_energyGenerator);
+    }
+
+    #region GameState
     public void ChangeGameState(GameState gameState)
     {
         _curGameState = gameState;
@@ -57,32 +79,80 @@ public class GameManager : Singleton<GameManager>
                 UIManager.Instance.SetItemSelectUI(true);
                 break;
             case GameState.GameOver:
-                
+
+                DestroyAllEnemies();
                 break;
         }
     }
 
     public GameState GetCurGameState() => _curGameState;
 
+    #endregion
 
-    private IEnumerator LoadEnvironmentScene()
+    #region Enemy
+
+    public void AddEnemy(Enemy enemy)
     {
-        ChangeGameState(GameState.Pause);
-        // 씬을 비동기적으로 로드
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("EnvironmentScene", LoadSceneMode.Additive);
+        _enemyList.Add(enemy);
+    }
 
-        // 씬이 로드될 때까지 대기
-        while (!asyncLoad.isDone)
+    public void DestroyAllEnemies()
+    {
+        for (int i = 0; i < _enemyList.Count; i++)
         {
-            yield return null;
+            if (_enemyList[i] != null)
+            {
+                Destroy(_enemyList[i].gameObject);
+            }
         }
-
-        ChangeGameState(GameState.Play);
+        _enemyList.Clear();
     }
 
-    public void SetEnergyGenerator(Transform energyGenerator)
+    #endregion
+
+    #region Money
+
+    public uint GetMoney() => _curMoney;
+
+    public void DecreaseMoney(int amount)
     {
-        _energyGenerator = energyGenerator;
-        _spawnManger.SetEnergyGenerator(_energyGenerator);
+        _curMoney -= (uint)amount;
+        UIManager.Instance.UpdateMoney();
     }
+
+    public void IncreaseMoney(int amount)
+    {
+        _curMoney += (uint)amount;
+        UIManager.Instance.UpdateMoney();
+    }
+
+    #endregion
+
+    public Item GetItem(int index)
+    {
+        return items[index];    
+    }
+
+    #region Score
+
+    public void UpdateScore()
+    {
+        _curScore += Time.deltaTime;
+        UIManager.Instance.UpdateScore((uint)_curScore);     
+    }
+
+    public void IncreaseScore(int score)
+    {
+        _curScore += score;
+        UIManager.Instance.UpdateScore((uint)_curScore);
+    }
+
+    #endregion
+}
+
+[System.Serializable]
+public class Item
+{
+    public GameObject ItemPrefab;
+    public int price;
 }

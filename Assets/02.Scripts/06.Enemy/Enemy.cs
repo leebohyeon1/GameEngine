@@ -11,9 +11,11 @@ public class Enemy : MonoBehaviour
     protected Transform _target;
     protected EnergyGenerator _energyGenerator;
 
+    [SerializeField] protected Transform _attackPoint;
 
-    [SerializeField] protected float _maxHp;
-    protected float _curHp;
+    [SerializeField] protected int _maxHp;
+    protected int _curHp;
+    
     [SerializeField] protected float _moveSpeed;
 
 
@@ -21,11 +23,14 @@ public class Enemy : MonoBehaviour
     
     [SerializeField] protected float _attackSpeed;
     protected float _attackTimer;
-    protected bool _isAttack;
-    
+    protected bool _isAttack = false;
+    protected bool _canMove = true;
+    protected bool _isDead = false; // 사망 여부를 확인하는 변수 추가
 
     [SerializeField] protected float _attackDamage;
-    
+
+    [SerializeField] protected int _dropMoney;
+    [SerializeField] protected int _dropScore;
 
     protected virtual void Awake()
     {
@@ -52,7 +57,7 @@ public class Enemy : MonoBehaviour
 
     protected virtual void EnemyAction()
     {
-        if (_target == null)
+        if (_target == null || !_canMove)
         {
             return;
         }
@@ -86,26 +91,60 @@ public class Enemy : MonoBehaviour
     }
 
 
-    public void AttackEnd()
+    public virtual void TakeDamage(int damage)
     {
-        _isAttack = false;
-    }
+        if (_isDead)
+            return; // 이미 죽은 상태라면 함수 종료
 
-    public void TakeDamage(float damage)
-    {
+        _canMove = false;
+        _agent.isStopped = true;
+        _agent.velocity = Vector3.zero;
+
         _curHp -= damage;
 
         if (_curHp <= 0)
         {
-            Destroy(gameObject);
+            _isDead = true; // 사망 상태로 변경
+            _animator.SetTrigger("Die");
+            StartCoroutine(Die());
+        }
+        else
+        {
+
+            _animator.SetTrigger("GetHit");
+
         }
     }
-    
+
+    public virtual void AttackEnd()
+    {
+        _isAttack = false;
+    }
+
+    public virtual void OnMove()
+    {
+        _canMove = true;
+        _agent.isStopped = false;
+        
+    }
+
+    public virtual IEnumerator Die()
+    {
+        yield return new WaitForSeconds(1.4f);
+        GameManager.Instance.IncreaseMoney(_dropMoney);
+        GameManager.Instance.IncreaseScore(_dropScore);
+        Destroy(gameObject);
+    }
+
     public virtual void SetTarget(Transform target)
     {
         _target = target;
         _energyGenerator = _target.GetComponent<EnergyGenerator>();
     }
 
+    public virtual Transform GetAttackPoint()
+    {
+        return _attackPoint;
+    }
 
 }

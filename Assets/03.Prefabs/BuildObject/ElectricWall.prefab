@@ -220,6 +220,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7648093073048076094}
+  - component: {fileID: 5282232077556768935}
   m_Layer: 0
   m_Name: ElectricWall
   m_TagString: Untagged
@@ -245,6 +246,23 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5282232077556768935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7648093073048076093}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd81db79f38ec1c43bf1cb75b6a611ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  electric: {fileID: 7648093072819440780}
+  _damagePerSec: 1
+  _enemyLayer:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!1 &7648768924400804842
 GameObject:
   m_ObjectHideFlags: 0
