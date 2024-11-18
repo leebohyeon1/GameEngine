@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public enum GameState
 {
@@ -12,12 +13,16 @@ public enum GameState
 
 public class GameManager : Singleton<GameManager>
 {
+    [SerializeField] private SpawnManger _spawnManger;
+
     private GameState _curGameState;
+    private Transform _energyGenerator;
 
     // Start is called before the first frame update
     protected override void Start()
     {
         ChangeGameState(GameState.Play);
+        //StartCoroutine(LoadEnvironmentScene());
     }
 
     // Update is called once per frame
@@ -59,4 +64,25 @@ public class GameManager : Singleton<GameManager>
 
     public GameState GetCurGameState() => _curGameState;
 
+
+    private IEnumerator LoadEnvironmentScene()
+    {
+        ChangeGameState(GameState.Pause);
+        // 씬을 비동기적으로 로드
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("EnvironmentScene", LoadSceneMode.Additive);
+
+        // 씬이 로드될 때까지 대기
+        while (!asyncLoad.isDone)
+        {
+            yield return null;
+        }
+
+        ChangeGameState(GameState.Play);
+    }
+
+    public void SetEnergyGenerator(Transform energyGenerator)
+    {
+        _energyGenerator = energyGenerator;
+        _spawnManger.SetEnergyGenerator(_energyGenerator);
+    }
 }

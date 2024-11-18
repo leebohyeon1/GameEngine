@@ -78,7 +78,7 @@ public class ObjectBuilder : MonoBehaviour
             _objectPreview.GetComponent<Turret>().enabled = false;
         }
 
-        //objectPreview.GetComponent<NavMeshObstacle>().enabled = false;
+        _objectPreview.GetComponentInChildren<NavMeshObstacle>().enabled = false;
 
         SetObjectPreviewMaterialAlpha(0.5f); // 반투명하게 설정
     }

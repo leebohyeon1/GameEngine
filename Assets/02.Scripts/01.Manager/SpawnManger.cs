@@ -1,0 +1,66 @@
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
+
+public class SpawnManger : MonoBehaviour
+{
+    [SerializeField] private Transform _energyGenerator;
+    [SerializeField] private float _spawnRadius;
+
+    [SerializeField] private float _spawnInterval;
+    private float _timer = 0f;
+
+    [SerializeField] private GameObject enemyObject;
+
+    private void Start()
+    {
+        
+    }
+
+    private void Update()
+    {
+        _timer += Time.deltaTime;
+
+        if (_timer > _spawnInterval)
+        {
+            _timer = 0f;
+            Spawn(enemyObject);
+        }
+        
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(_energyGenerator.position, _spawnRadius); 
+    }
+
+    public void SetEnergyGenerator(Transform energyGenerator)
+    {
+        _energyGenerator = energyGenerator;
+    }
+
+    private Vector3 GetRandomPosition()
+    {
+        Vector2 randomDirection =  Random.insideUnitCircle.normalized * _spawnRadius;
+        Vector3 spawnPosition = new Vector3(randomDirection.x, 1f, randomDirection.y);
+
+        spawnPosition += _energyGenerator.position;
+        
+        return spawnPosition;
+    }
+
+    private void Spawn(GameObject gameObject)
+    {
+        if(_energyGenerator == null)
+        {
+            return;
+        }
+
+        GameObject enemyObject = Instantiate(gameObject, GetRandomPosition(), Quaternion.identity);    
+        
+        Enemy enemy = enemyObject.GetComponent<Enemy>();
+        enemy.SetTarget(_energyGenerator);
+    }
+}

@@ -22,6 +22,8 @@ public class FallState : FSMState
         
         player.SetGravity();
 
+        player.Move();
+
         if (player.GetIsGround())
         {
             player.SetState("JumpDown");
