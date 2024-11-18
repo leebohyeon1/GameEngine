@@ -11,12 +11,17 @@ public class JumpUpState : FSMState
 
     public override void OnEnter(PlayerController player)
     {
-        player.Animator.SetTrigger("Jump");
+        if (!player.Animator.GetCurrentAnimatorStateInfo(0).IsName("Jump"))
+        { 
+            player.Animator.SetTrigger("Jump");
+        }
+
+
     }
 
     public override void OnUpdate(PlayerController player)
     {
-
+        base.OnUpdate(player);
 
         if (InputManager.Instance.IsPlaceMode)
         {

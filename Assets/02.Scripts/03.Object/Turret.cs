@@ -77,16 +77,34 @@ public class Turret : MonoBehaviour
             return;
         }
 
-        // 목표 위치의 Y축을 무시하고 터렛 몸체의 목표 방향을 계산합니다.
-        Vector3 targetPos = new Vector3(_target.position.x, _turretBody.position.y, _target.position.z);
+        RotateTurretBody();
 
-        // 터렛 몸체의 부드러운 회전
-        Quaternion turretTargetRotation = Quaternion.LookRotation(targetPos - _turretBody.position);
-        _turretBody.rotation = Quaternion.Slerp(_turretBody.rotation, turretTargetRotation, Time.deltaTime * _rotationSpeed);
-
-        // 포신의 부드러운 회전
+        // 포신은 기존 방식으로 목표를 바라보게 설정
         Quaternion gunBarrelTargetRotation = Quaternion.LookRotation(_target.position - _gunBarrel.position);
         _gunBarrel.rotation = Quaternion.Slerp(_gunBarrel.rotation, gunBarrelTargetRotation, Time.deltaTime * _rotationSpeed);
+    }
+
+
+    private void RotateTurretBody()
+    {
+        // 목표 위치의 Y축을 무시하고 터렛 몸체의 목표 방향 계산
+        Vector3 targetPos = new Vector3(_target.position.x, _turretBody.position.y, _target.position.z);
+
+        // 방향 계산 (XZ 평면에서만)
+        Vector3 directionToTarget = targetPos - _turretBody.position;
+
+        if (directionToTarget != Vector3.zero)
+        {
+            // 목표 방향의 Y축 회전 값 계산
+            Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
+            Vector3 currentEuler = _turretBody.localEulerAngles;
+
+            // 현재 로컬 회전에서 X, Z 축을 유지하며 Y축만 회전
+            Quaternion smoothRotation = Quaternion.Euler(currentEuler.x, targetRotation.eulerAngles.y, currentEuler.z);
+
+            // 부드럽게 보간하여 회전
+            _turretBody.localRotation = Quaternion.Slerp(_turretBody.localRotation, smoothRotation, Time.deltaTime * _rotationSpeed);
+        }
     }
 
 

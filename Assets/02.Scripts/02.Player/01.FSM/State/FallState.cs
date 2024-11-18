@@ -10,11 +10,16 @@ public class FallState : FSMState
 
     public override void OnEnter(PlayerController player)
     {
-        player.Animator.SetTrigger("Fall");
+        if (!player.Animator.GetCurrentAnimatorStateInfo(0).IsName("Fall"))
+        {
+            player.Animator.SetTrigger("Fall");
+        }
     }
 
     public override void OnUpdate(PlayerController player)
     {
+        base.OnUpdate(player);
+        
         player.SetGravity();
 
         if (player.GetIsGround())

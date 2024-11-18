@@ -13,6 +13,7 @@ public class IdleState : FSMState
 
     public override void OnUpdate(PlayerController player)
     {
+        base.OnUpdate(player);
         // Idle 상태일 때 처리할 로직
         player.Rotate();
 

@@ -15,6 +15,7 @@ public class PlaceState : FSMState
     }
     public override void OnUpdate(PlayerController player)
     {
+        base.OnUpdate(player);
     }
 
     public override void OnFixedUpdate(PlayerController player)

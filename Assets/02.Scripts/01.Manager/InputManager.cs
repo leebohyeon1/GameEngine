@@ -12,12 +12,15 @@ public class InputManager : Singleton<InputManager>
     private InputAction _lookAction;
     private InputAction _placeAction;
     private InputAction _placeModeAction;
+    private InputAction _ItemSelectAction;
 
     public Vector2 MoveInput { get; private set; }
     public bool JumpInput { get; private set; }
     public Vector2 LookInput { get; private set; }
     public bool PlaceInput { get; private set; }
     public bool IsPlaceMode {  get; private set; }
+    public bool ItemSelectInput { get; private set; }
+    public bool ItemSelectPressed { get; private set; }
 
     protected override void Awake()
     {
@@ -47,6 +50,7 @@ public class InputManager : Singleton<InputManager>
         _lookAction = _playerInput.actions["Look"];
         _placeAction = _playerInput.actions["Place"];
         _placeModeAction = _playerInput.actions["PlaceMode"];
+        _ItemSelectAction = _playerInput.actions["ItemSelect"];
     }
 
     private void HandleActions() // 액션 값 받는 함수
@@ -60,6 +64,10 @@ public class InputManager : Singleton<InputManager>
         PlaceInput = _placeAction.WasPressedThisFrame();
 
         IsPlaceMode = _placeModeAction.IsPressed();
+
+        ItemSelectInput = _ItemSelectAction.WasPressedThisFrame();
+
+        ItemSelectPressed = _ItemSelectAction.IsPressed();
     }
 
     public void SwitchToActionMap(string actionMapName)

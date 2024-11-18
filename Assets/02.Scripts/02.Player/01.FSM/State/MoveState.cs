@@ -14,6 +14,8 @@ public class MoveState : FSMState
 
     public override void OnUpdate(PlayerController player)
     {
+        base.OnUpdate(player);
+
         if (InputManager.Instance.JumpInput)
         {
             player.Jump();

@@ -239,4 +239,9 @@ public class ObjectBuilder : MonoBehaviour
     {
         return ObjectClones;
     }
+
+    public void SetObject(GameObject obj)
+    {
+        _objectPrefab = obj;
+    }
 }

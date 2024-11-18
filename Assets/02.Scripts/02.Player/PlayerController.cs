@@ -54,8 +54,7 @@ public class PlayerController : MonoBehaviour
         // 초기 카메라 offset Y 설정
         _currentOffsetY = virtualCamera.GetCinemachineComponent<CinemachineTransposer>().m_FollowOffset.y;
 
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+
     }
 
     private void Update()
@@ -64,6 +63,7 @@ public class PlayerController : MonoBehaviour
         _characterController.Move(_velocity * _moveSpeed * Time.deltaTime);
 
         _fsm.Update(this);
+
     }
 
     private void FixedUpdate()
@@ -190,6 +190,11 @@ public class PlayerController : MonoBehaviour
         _fsm.SetState(key, this);
     }
 
+    public void SetState(FSMState fsmState)
+    {
+        _fsm.SetState(fsmState, this);
+    }
+
     public void SetGravity()
     {
         // 중력 적용
@@ -204,11 +209,9 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region GetFunc
-    public bool GetIsGround()
-    {
-        return _isGrounded;
-    }
+    public bool GetIsGround() => _isGrounded;
 
+    public FSMState GetPreState() => _fsm.GetPreState();
     #endregion
 
 }
