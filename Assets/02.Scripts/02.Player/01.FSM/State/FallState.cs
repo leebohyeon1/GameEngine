@@ -14,6 +14,8 @@ public class FallState : FSMState
         {
             player.Animator.SetTrigger("Fall");
         }
+
+        player.ActionRecorder.RecordFall(player.transform.position,player.transform.rotation);
     }
 
     public override void OnUpdate(PlayerController player)

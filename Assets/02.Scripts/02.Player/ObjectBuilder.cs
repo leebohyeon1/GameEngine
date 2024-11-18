@@ -19,13 +19,15 @@ public class ObjectBuilder : MonoBehaviour
     private int _price = 0;
 
     private Transform _cameraTransform; // 카메라 Transform
-
+    private PlayerController _playerController;
 
     private List<GameObject> _objectClones_ = new List<GameObject>();
     public List<GameObject> ObjectClones => _objectClones_;
 
     private void Start()
     {
+        _playerController = GetComponent<PlayerController>();
+
         _cameraTransform = Camera.main.transform; // 메인 카메라의 Transform 가져오기
     }
 
@@ -147,6 +149,8 @@ public class ObjectBuilder : MonoBehaviour
             GameObject placedObject = Instantiate(_objectPrefab, buildPosition, buildRotation);
             ObjectClones.Add(placedObject);
 
+            _playerController.ActionRecorder.RecordPlaceObject(_objectPrefab, buildPosition, buildRotation);
+
             GameManager.Instance.DecreaseMoney(_price);
         }
         else
@@ -238,10 +242,6 @@ public class ObjectBuilder : MonoBehaviour
         _placedObjects.Clear(); // 리스트 초기화
     }
 
-    public List<GameObject> GetObjectClones()
-    {
-        return ObjectClones;
-    }
 
     public void SetObject(GameObject obj, int price)
     {

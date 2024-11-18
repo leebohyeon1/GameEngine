@@ -26,7 +26,14 @@ public class EnergyGenerator : MonoBehaviour
 
         if (_curHp <= 0)
         {
-            Destroy(gameObject);
+            gameObject.SetActive(false);
+            GameManager.Instance.ChangeGameState(GameState.TimeBreakDown);
+            
         }
+    }
+
+    public void ResetStat()
+    {
+        _curHp = _maxHp;
     }
 }

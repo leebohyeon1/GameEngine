@@ -17,6 +17,7 @@ public class JumpUpState : FSMState
         }
 
 
+        player.ActionRecorder.RecordJump(player.transform.position, player.transform.rotation);
     }
 
     public override void OnUpdate(PlayerController player)

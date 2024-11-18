@@ -6,6 +6,9 @@ using UnityEngine;
 public class SpawnManger : MonoBehaviour
 {
     [SerializeField] private Transform _energyGenerator;
+    [SerializeField] private Transform _playerStartPosition;
+
+    [Space(20f)]
     [SerializeField] private float _spawnRadius;
 
     [SerializeField] private float _spawnInterval;
@@ -65,4 +68,6 @@ public class SpawnManger : MonoBehaviour
 
         GameManager.Instance.AddEnemy(enemy);
     }
+
+    public Transform PlayerSpawnPos() => _playerStartPosition;
 }

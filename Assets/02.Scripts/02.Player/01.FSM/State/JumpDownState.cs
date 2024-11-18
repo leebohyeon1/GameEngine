@@ -14,6 +14,8 @@ public class JumpDownState : FSMState
             player.Animator.SetTrigger("Landing");
         }
 
+        player.ActionRecorder.RecordLanding(player.transform.position, player.transform.rotation);
+
         player.SetZeroVelocity();
 
         player.Animator.SetBool("PlaceMode", false);

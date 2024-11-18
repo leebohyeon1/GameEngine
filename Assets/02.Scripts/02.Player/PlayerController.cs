@@ -11,13 +11,20 @@ public class PlayerController : MonoBehaviour
     private InputManager _inputManager;
     private CharacterController _characterController;
     public ObjectBuilder ObjectBuilder { get; private set; }
+    public PlayerActionRecorder ActionRecorder { get; private set; }
 
     private FSMBase _fsm;
 
     private Transform _cameraTransform;
-    [SerializeField] private CinemachineVirtualCamera virtualCamera;
+    [SerializeField] private CinemachineVirtualCamera _virtualCamera;
 
-    public Animator Animator { get; private set; }  
+    public Animator Animator { get; private set; }
+
+
+    private List<List<PlayerActionRecorder.PlayerAction>> _allRecordedActions = new List<List<PlayerActionRecorder.PlayerAction>>();
+    private List<GameObject> _actionClones = new List<GameObject>();
+
+    [SerializeField] private GameObject _npcReplayerPrefab; // NPCReplayer 프리팹 참조
 
     #region Stat
     [Space(20f)]
@@ -40,7 +47,8 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         _characterController = GetComponent<CharacterController>();
-        ObjectBuilder = GetComponent<ObjectBuilder>(); 
+        ObjectBuilder = GetComponent<ObjectBuilder>();
+        ActionRecorder = GetComponent<PlayerActionRecorder>();
         Animator = GetComponent<Animator>();
 
         SetFSM();
@@ -52,7 +60,7 @@ public class PlayerController : MonoBehaviour
         _cameraTransform = Camera.main.transform;
 
         // 초기 카메라 offset Y 설정
-        _currentOffsetY = virtualCamera.GetCinemachineComponent<CinemachineTransposer>().m_FollowOffset.y;
+        _currentOffsetY = _virtualCamera.GetCinemachineComponent<CinemachineTransposer>().m_FollowOffset.y;
 
 
     }
@@ -131,7 +139,7 @@ public class PlayerController : MonoBehaviour
         _currentOffsetY = Mathf.Clamp(_currentOffsetY, minOffsetY, maxOffsetY);
 
         // CinemachineTransposer의 followOffset Y 값 업데이트
-        var transposer = virtualCamera.GetCinemachineComponent<CinemachineTransposer>();
+        var transposer = _virtualCamera.GetCinemachineComponent<CinemachineTransposer>();
         Vector3 offset = transposer.m_FollowOffset;
         offset.y = _currentOffsetY;
         transposer.m_FollowOffset = offset;
@@ -159,6 +167,7 @@ public class PlayerController : MonoBehaviour
 
             SetGravity();
             SetState("JumpUp");
+
         }
     }
 
@@ -214,4 +223,51 @@ public class PlayerController : MonoBehaviour
     public FSMState GetPreState() => _fsm.GetPreState();
     #endregion
 
+    public void Die()
+    {
+        _allRecordedActions.Add(ActionRecorder.GetRecordedActions());
+        ActionRecorder.StopRecording();
+
+        ResetPlayer();
+    }
+
+    public void ResetPlayer()
+    {
+        ActionRecorder.ResetRecording();
+        ActionRecorder.StartRecording();
+
+        foreach (GameObject clone in _actionClones) // 분신 제거
+        {
+            if (clone != null)
+            {
+                Destroy(clone);
+            }
+        }
+        _actionClones.Clear();
+
+        foreach (GameObject clone in ObjectBuilder.ObjectClones) //설치한 오브젝트 제거
+        {
+            if (clone != null)
+            {
+                Destroy(clone);
+            }
+        }
+
+        ObjectBuilder.ObjectClones.Clear();
+
+
+        for (int i = 0; i < _allRecordedActions.Count; i++)
+        {
+            CreateNPC(_allRecordedActions[i]);// 분신 생성
+        }
+    }
+
+    private void CreateNPC(List<PlayerActionRecorder.PlayerAction> actions)
+    {
+        GameObject npcInstance = Instantiate(_npcReplayerPrefab, transform.position, Quaternion.identity);
+        _actionClones.Add(npcInstance.gameObject); // 클론 리스트에 오브젝트 추가
+        CloneReplayer clone = npcInstance.GetComponent<CloneReplayer>();
+        clone.SetEngineer(ObjectBuilder);         // 생성자 설정
+        clone.StartReplay(actions);         // 플레이어 행동 정보 넘기기
+    }
 }

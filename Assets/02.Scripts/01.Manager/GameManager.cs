@@ -7,36 +7,40 @@ public enum GameState
 {
     Play = 0,
     Pause = 1,
-    ItemSelect =2,
-    GameOver = 3,
+    ItemSelect = 2,
+    TimeBreakDown = 3,
+    GameOver = 4,
 }
 
 public class GameManager : Singleton<GameManager>
 {
+    private Transform _energyGenerator;
+
+    [SerializeField] private GameObject _player;
     [SerializeField] private SpawnManger _spawnManger;
 
     [SerializeField] private Item[] items;
 
+    [SerializeField] private int _maxLife; // 총 목숨 갯수
+    private int _curLife;
+
+
+
     private GameState _curGameState; // 현재 게임 상태
-    private Transform _energyGenerator;
+    private uint _curMoney; // 현재 자원
+    private float _curScore; // 현재 점수
 
-    private uint _curMoney;
-    private float _curScore;
+    private List<Enemy> _enemyList = new List<Enemy>(); // 소환한 적 리스트
 
-
-    private List<Enemy> _enemyList = new List<Enemy>();
-
-
-
-    // Start is called before the first frame update
     protected override void Start()
     {
         ChangeGameState(GameState.Play);
 
-        IncreaseMoney(15);
+        SetMoney(15);
+
+        _curLife = _maxLife;
     }
 
-    // Update is called once per frame
     protected override void Update()
     {
         if(_curGameState == GameState.Play || _curGameState == GameState.ItemSelect)
@@ -78,9 +82,11 @@ public class GameManager : Singleton<GameManager>
 
                 UIManager.Instance.SetItemSelectUI(true);
                 break;
+            case GameState.TimeBreakDown:
+                RestartGame();
+                break;
             case GameState.GameOver:
 
-                DestroyAllEnemies();
                 break;
         }
     }
@@ -126,6 +132,11 @@ public class GameManager : Singleton<GameManager>
         UIManager.Instance.UpdateMoney();
     }
 
+    public void SetMoney(int amount)
+    {
+        _curMoney = (uint)amount;
+        UIManager.Instance.UpdateMoney();
+    }
     #endregion
 
     public Item GetItem(int index)
@@ -148,6 +159,30 @@ public class GameManager : Singleton<GameManager>
     }
 
     #endregion
+
+    private void RestartGame()
+    {
+        _curLife--;
+
+        DestroyAllEnemies();
+
+        if (_curLife <= 0)
+        {
+            ChangeGameState(GameState.GameOver);
+            return;
+        }
+
+        _player.GetComponent<PlayerController>().Die();
+        _player.transform.position = _spawnManger.PlayerSpawnPos().position;
+
+        _energyGenerator.gameObject.SetActive(true);
+        _energyGenerator.GetComponent<EnergyGenerator>().ResetStat();
+
+
+        SetMoney(15);
+    }
+
+
 }
 
 [System.Serializable]
