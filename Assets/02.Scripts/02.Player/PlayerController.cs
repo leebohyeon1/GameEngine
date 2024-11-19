@@ -62,7 +62,7 @@ public class PlayerController : MonoBehaviour
         // 초기 카메라 offset Y 설정
         _currentOffsetY = _virtualCamera.GetCinemachineComponent<CinemachineTransposer>().m_FollowOffset.y;
 
-
+        GameManager.Instance.SetPlayer(gameObject);
     }
 
     private void Update()

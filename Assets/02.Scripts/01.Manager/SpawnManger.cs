@@ -18,7 +18,7 @@ public class SpawnManger : MonoBehaviour
 
     private void Start()
     {
-        
+        GameManager.Instance.SetSapwnManager(this);
     }
 
     private void Update()

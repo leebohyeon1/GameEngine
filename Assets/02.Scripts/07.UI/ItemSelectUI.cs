@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class ItemSelectUI : MonoBehaviour
@@ -26,6 +27,11 @@ public class ItemSelectUI : MonoBehaviour
 
     public void SelectItem(int index)
     {
+        if(_playerController == null)
+        {
+            _playerController = FindAnyObjectByType<PlayerController>();
+        }
+
         Item item = GameManager.Instance.GetItem(index);
 
         _itemImages[index].color = new Color(1, 1, 1, 0.5f);
@@ -35,6 +41,11 @@ public class ItemSelectUI : MonoBehaviour
     public void UnSelectItem(int index)
     {
         _itemImages[index].color = new Color(0, 0, 0, 0.5f);
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+
     }
 }
 

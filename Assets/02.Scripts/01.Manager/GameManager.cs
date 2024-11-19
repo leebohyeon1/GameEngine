@@ -34,6 +34,9 @@ public class GameManager : Singleton<GameManager>
 
     protected override void Start()
     {
+        _curScore = 0;
+        UIManager.Instance.UpdateScore((uint)_curScore); // Update the UI
+
         ChangeGameState(GameState.Play);
 
         SetMoney(15);
@@ -59,6 +62,16 @@ public class GameManager : Singleton<GameManager>
     {
         _energyGenerator = energyGenerator;
         _spawnManger.SetEnergyGenerator(_energyGenerator);
+    }
+    
+    public void SetSapwnManager(SpawnManger spawnManger)
+    {
+        _spawnManger = spawnManger;
+    }
+
+    public void SetPlayer(GameObject player)
+    {
+        _player = player;
     }
 
     #region GameState
@@ -196,15 +209,28 @@ public class GameManager : Singleton<GameManager>
 
     public void RestartBtn()
     {
+        SceneManager.sceneLoaded += OnSceneLoaded; 
         SceneManager.LoadScene("02.Game");
         UIManager.Instance.GameOverUIOff();
-
-        ChangeGameState(GameState.Play);
     }
 
     public void ExitBtn()
     {
         SceneManager.LoadScene("01.Title");
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        SetMoney(15);
+        UIManager.Instance.UpdateMoney();
+        _curScore = 0;
+        UIManager.Instance.UpdateScore((uint)_curScore);
+
+        ChangeGameState(GameState.Play);
+
+        _curLife = _maxLife;
+        
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 }
 
