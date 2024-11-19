@@ -47,6 +47,11 @@ public class GameManager : Singleton<GameManager>
         {
             UpdateScore();
         }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            RestartGame();
+        }
     }
 
 
@@ -83,10 +88,16 @@ public class GameManager : Singleton<GameManager>
                 UIManager.Instance.SetItemSelectUI(true);
                 break;
             case GameState.TimeBreakDown:
+                Time.timeScale = 0f;
+
                 RestartGame();
                 break;
             case GameState.GameOver:
+                Time.timeScale = 0f;
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
 
+                UIManager.Instance.GameOverUIOn();
                 break;
         }
     }
@@ -172,17 +183,29 @@ public class GameManager : Singleton<GameManager>
             return;
         }
 
-        _player.GetComponent<PlayerController>().Die();
-        _player.transform.position = _spawnManger.PlayerSpawnPos().position;
+        _player.GetComponent<PlayerController>().Die(_spawnManger.PlayerSpawnPos());
 
         _energyGenerator.gameObject.SetActive(true);
         _energyGenerator.GetComponent<EnergyGenerator>().ResetStat();
 
-
         SetMoney(15);
+
+        ChangeGameState(GameState.Play);
     }
 
 
+    public void RestartBtn()
+    {
+        SceneManager.LoadScene("02.Game");
+        UIManager.Instance.GameOverUIOff();
+
+        ChangeGameState(GameState.Play);
+    }
+
+    public void ExitBtn()
+    {
+        SceneManager.LoadScene("01.Title");
+    }
 }
 
 [System.Serializable]

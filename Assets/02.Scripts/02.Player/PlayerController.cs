@@ -67,6 +67,11 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if(GameManager.Instance.GetCurGameState() == GameState.GameOver)
+        {
+            return;
+        }
+
         CheckGround();
         _characterController.Move(_velocity * _moveSpeed * Time.deltaTime);
 
@@ -223,10 +228,12 @@ public class PlayerController : MonoBehaviour
     public FSMState GetPreState() => _fsm.GetPreState();
     #endregion
 
-    public void Die()
+    public void Die(Vector3 position)
     {
         _allRecordedActions.Add(ActionRecorder.GetRecordedActions());
         ActionRecorder.StopRecording();
+
+        _characterController.Move(position - transform.position);
 
         ResetPlayer();
     }

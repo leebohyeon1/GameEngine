@@ -59,7 +59,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         }
         else if (_instance != this)
         {
-            DestroyImmediate(gameObject);
+            Destroy(gameObject);
         }
     }
     protected virtual void OnEnable() { }
@@ -81,7 +81,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 
     protected virtual void OnDestroy()
     {
-        if (_instance == this)
+        if (!_applicationIsQuitting && _instance == this)
         {
             _instance = null;
         }

@@ -19,7 +19,7 @@ public class ElectricWall : BuildObject
     void Update()
     {
         _timer += Time.deltaTime;
-        if(_timer > 0.7f)
+        if(_timer > 1f)
         {
             _timer = 0f;
             CheckEnemy();

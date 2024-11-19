@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class Enemy : MonoBehaviour
 {
@@ -11,8 +12,11 @@ public class Enemy : MonoBehaviour
     protected Transform _target;
     protected EnergyGenerator _energyGenerator;
 
+    [SerializeField] protected Slider _hpBar;
     [SerializeField] protected Transform _attackPoint;
 
+
+    [Space(20f)]
     [SerializeField] protected int _maxHp;
     protected int _curHp;
     
@@ -41,7 +45,7 @@ public class Enemy : MonoBehaviour
         _agent.stoppingDistance = _attackRange;
 
         _curHp = _maxHp;
-
+        UpdateHpBar();
     }
 
     protected void OnDrawGizmos()
@@ -114,6 +118,8 @@ public class Enemy : MonoBehaviour
             _animator.SetTrigger("GetHit");
 
         }
+
+        UpdateHpBar();
     }
 
     public virtual void AttackEnd()
@@ -147,4 +153,8 @@ public class Enemy : MonoBehaviour
         return _attackPoint;
     }
 
+    protected virtual void UpdateHpBar()
+    {
+        _hpBar.value = (float)_curHp / _maxHp;
+    }
 }

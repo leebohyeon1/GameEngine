@@ -14,7 +14,7 @@ public class SpawnManger : MonoBehaviour
     [SerializeField] private float _spawnInterval;
     private float _timer = 0f;
 
-    [SerializeField] private GameObject enemyObject;
+    [SerializeField] private GameObject[] enemyObject;
 
     private void Start()
     {
@@ -28,7 +28,8 @@ public class SpawnManger : MonoBehaviour
         if (_timer > _spawnInterval)
         {
             _timer = 0f;
-            Spawn(enemyObject);
+            int i = Random.Range(0, enemyObject.Length);
+            Spawn(enemyObject[i]);
         }
         
     }
@@ -69,5 +70,5 @@ public class SpawnManger : MonoBehaviour
         GameManager.Instance.AddEnemy(enemy);
     }
 
-    public Transform PlayerSpawnPos() => _playerStartPosition;
+    public Vector3 PlayerSpawnPos() => _playerStartPosition.position;
 }
