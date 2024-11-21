@@ -10,7 +10,7 @@ public class Enemy : MonoBehaviour
     protected Animator _animator;
 
     protected Transform _target;
-    protected EnergyGenerator _energyGenerator;
+    protected BuildObject _buildObject;
 
     [SerializeField] protected Slider _hpBar;
     [SerializeField] protected Transform _attackPoint;
@@ -31,7 +31,7 @@ public class Enemy : MonoBehaviour
     protected bool _canMove = true;
     protected bool _isDead = false; // 사망 여부를 확인하는 변수 추가
 
-    [SerializeField] protected float _attackDamage;
+    [SerializeField] protected int _attackDamage;
 
     [SerializeField] protected int _dropMoney;
     [SerializeField] protected int _dropScore;
@@ -83,7 +83,7 @@ public class Enemy : MonoBehaviour
                 _animator.SetInteger("AttackIndex", Random.Range(0, 2));
 
                 _attackTimer = 0f;
-                _energyGenerator.TakeDamage(_attackDamage);
+                _buildObject.TakeDamage(_attackDamage);
             }
         }
         else
@@ -145,7 +145,7 @@ public class Enemy : MonoBehaviour
     public virtual void SetTarget(Transform target)
     {
         _target = target;
-        _energyGenerator = _target.GetComponent<EnergyGenerator>();
+        _buildObject = _target.GetComponent<BuildObject>();
     }
 
     public virtual Transform GetAttackPoint()

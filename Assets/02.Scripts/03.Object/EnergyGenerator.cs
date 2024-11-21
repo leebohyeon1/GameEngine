@@ -3,17 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EnergyGenerator : MonoBehaviour
+public class EnergyGenerator : BuildObject
 {
     [SerializeField] private Slider _hpBar;
-    [SerializeField] private float _maxHp;
-    
-    private float _curHp;
 
-    // Start is called before the first frame update
     void Start()
     {
-        _curHp = _maxHp;
         UpdateHpBar();
         GameManager.Instance.SetEnergyGenerator(transform);
     }
@@ -24,7 +19,7 @@ public class EnergyGenerator : MonoBehaviour
         
     }
 
-    public void TakeDamage(float damage)
+    public override void TakeDamage(int damage)
     {
         _curHp -= damage;
 
