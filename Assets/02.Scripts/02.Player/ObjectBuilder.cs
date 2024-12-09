@@ -147,7 +147,9 @@ public class ObjectBuilder : MonoBehaviour
 
             // 오브젝트를 생성하고 리스트에 추가
             GameObject placedObject = Instantiate(_objectPrefab, buildPosition, buildRotation);
-            ObjectClones.Add(placedObject);
+
+            PlaceObject(placedObject);
+            GameManager.Instance.AddObject(placedObject);
 
             _playerController.ActionRecorder.RecordPlaceObject(_objectPrefab, buildPosition, buildRotation);
 
@@ -247,5 +249,11 @@ public class ObjectBuilder : MonoBehaviour
     {
         _objectPrefab = obj;
         _price = price;
+    }
+
+    public void PlaceObject(GameObject obj)
+    {
+        ObjectClones.Add(obj);
+        obj.GetComponent<BuildObject>().SetBuilder(this);
     }
 }

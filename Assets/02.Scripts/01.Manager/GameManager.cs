@@ -31,6 +31,7 @@ public class GameManager : Singleton<GameManager>
     private float _curScore; // 현재 점수
 
     private List<Enemy> _enemyList = new List<Enemy>(); // 소환한 적 리스트
+    private List<GameObject> _buildObjectList = new List<GameObject>();    
 
     protected override void Start()
     {
@@ -184,6 +185,32 @@ public class GameManager : Singleton<GameManager>
 
     #endregion
 
+    #region BuildObject
+    
+    public void AddObject(GameObject buildObject)
+    {
+        if (!_buildObjectList.Contains(buildObject))
+        {
+            _buildObjectList.Add(buildObject);
+        }
+     
+    }
+
+    public void RemoveObject(GameObject buildObject)
+    {
+        if (_buildObjectList.Contains(buildObject))
+        {
+            _buildObjectList.Remove(buildObject);
+        }
+    }
+
+    public List<GameObject> GetObjectList()
+    {
+        return _buildObjectList;
+    }
+    
+    #endregion
+
     private void RestartGame()
     {
         _curLife--;
@@ -196,6 +223,7 @@ public class GameManager : Singleton<GameManager>
             return;
         }
 
+        _buildObjectList.Clear();
         _player.GetComponent<PlayerController>().Die(_spawnManger.PlayerSpawnPos());
 
         _energyGenerator.gameObject.SetActive(true);

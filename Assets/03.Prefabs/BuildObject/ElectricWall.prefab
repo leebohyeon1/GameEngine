@@ -258,6 +258,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd81db79f38ec1c43bf1cb75b6a611ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _maxHp: 2
   electric: {fileID: 7648093072819440780}
   _damagePerSec: 1
   _enemyLayer:

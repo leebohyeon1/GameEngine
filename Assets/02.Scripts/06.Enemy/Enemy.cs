@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
@@ -9,8 +10,8 @@ public class Enemy : MonoBehaviour
     protected NavMeshAgent _agent;
     protected Animator _animator;
 
-    protected Transform _target;
-    protected BuildObject _buildObject;
+    protected BuildObject _subTarget;
+    protected EnergyGenerator _energyGenerator;
 
     [SerializeField] protected Slider _hpBar;
     [SerializeField] protected Transform _attackPoint;
@@ -56,22 +57,60 @@ public class Enemy : MonoBehaviour
 
     protected virtual void Update()
     {
-        EnemyAction();
-    }
-
-    protected virtual void EnemyAction()
-    {
-        if (_target == null || !_canMove)
+        if (_energyGenerator == null || !_canMove)
         {
             return;
         }
 
-        float distance = Vector3.Distance(_target.position, transform.position);
+        if( (_subTarget != null && !IsPathValid(_subTarget.transform.position)) || (_subTarget == null && !IsPathValid(_energyGenerator.transform.position)))
+        {
+            FindClosestBuildObject();
+        }
+
+        EnemyAction();
+    }
+
+    protected bool IsPathValid(Vector3 targetPosition)
+    {
+        NavMeshPath path = new NavMeshPath();
+        _agent.CalculatePath(targetPosition, path);
+        return path.status == NavMeshPathStatus.PathComplete;
+    }
+
+    protected virtual void EnemyAction()
+    {
+        if (_energyGenerator == null || !_canMove)
+        {
+            return;
+        }
+
+        // 서브 타겟이 있으면 서브 타겟으로 이동
+        if (_subTarget != null)
+        {
+            MoveToSubTarget();
+            return;
+        }
+
+        // 서브 타겟이 없으면 일반 타겟으로 이동
+        if (_energyGenerator != null)
+        {
+            MoveToTarget();
+        }
+    }
+
+    protected void MoveToSubTarget()
+    {
+        if (_subTarget == null)
+        {
+            return;
+        }
+
+        float distance = Vector3.Distance(_subTarget.transform.position, transform.position);
 
         if (distance <= _attackRange)
         {
             _agent.isStopped = true;
-            _agent.velocity = Vector3.zero; // 에이전트의 속도를 0으로 설정하여 즉시 멈춤
+            _agent.velocity = Vector3.zero;
             _animator.SetBool("Move", false);
 
             _attackTimer += Time.deltaTime;
@@ -83,17 +122,57 @@ public class Enemy : MonoBehaviour
                 _animator.SetInteger("AttackIndex", Random.Range(0, 2));
 
                 _attackTimer = 0f;
-                _buildObject.TakeDamage(_attackDamage);
+                _subTarget?.TakeDamage(_attackDamage);
             }
         }
         else
         {
             _agent.isStopped = false;
             _animator.SetBool("Move", true);
-            _agent.SetDestination(_target.position);
+            _agent.SetDestination(_subTarget.transform.position);
+        }
+
+        // 서브 타겟이 사라지거나 제거되었는지 확인
+        if (_subTarget == null)
+        {
+            _subTarget = null;
         }
     }
 
+    protected void MoveToTarget()
+    {
+        if (_energyGenerator == null)
+        {
+            return;
+        }
+
+        float distance = Vector3.Distance(_energyGenerator.transform.position, transform.position);
+
+        if (distance <= _attackRange)
+        {
+            _agent.isStopped = true;
+            _agent.velocity = Vector3.zero;
+            _animator.SetBool("Move", false);
+
+            _attackTimer += Time.deltaTime;
+
+            if (_attackTimer >= 1 / _attackSpeed && !_isAttack)
+            {
+                _isAttack = true;
+                _animator.SetTrigger("Attack");
+                _animator.SetInteger("AttackIndex", Random.Range(0, 2));
+
+                _attackTimer = 0f;
+                _energyGenerator?.TakeDamage(_attackDamage);
+            }
+        }
+        else
+        {
+            _agent.isStopped = false;
+            _animator.SetBool("Move", true);
+            _agent.SetDestination(_energyGenerator.transform.position);
+        }
+    }
 
     public virtual void TakeDamage(int damage)
     {
@@ -144,10 +223,14 @@ public class Enemy : MonoBehaviour
 
     public virtual void SetTarget(Transform target)
     {
-        _target = target;
-        _buildObject = _target.GetComponent<BuildObject>();
+        _energyGenerator = target.GetComponent<EnergyGenerator>();
     }
 
+    public virtual void SetSubTarget(Transform target)
+    {
+        _subTarget = target.GetComponent<BuildObject>();
+    }
+    
     public virtual Transform GetAttackPoint()
     {
         return _attackPoint;
@@ -157,4 +240,36 @@ public class Enemy : MonoBehaviour
     {
         _hpBar.value = (float)_curHp / _maxHp;
     }
+
+    protected void FindClosestBuildObject()
+    {
+        float minDistance = Mathf.Infinity;
+        List<GameObject> objList = GameManager.Instance.GetObjectList();
+
+        if (objList == null || objList.Count == 0)
+        {
+            return;
+        }
+
+        foreach (GameObject obj in objList)
+        {
+            if(obj == null)
+            {
+                continue;
+            }
+
+            float distance = Vector3.Distance(transform.position, obj.transform.position);
+
+            if(distance < minDistance)
+            {
+                minDistance = distance;
+
+                SetSubTarget(obj.transform);
+            }
+
+        }
+        
+    }
+
+
 }

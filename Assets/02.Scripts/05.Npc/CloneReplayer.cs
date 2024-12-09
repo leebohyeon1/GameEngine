@@ -89,7 +89,10 @@ public class CloneReplayer : MonoBehaviour
                         collider.isTrigger = true;
                     }
                     changebjectPreviewColor(placedObject);
-                    Builder.ObjectClones.Add(placedObject);
+                    
+                    Builder.PlaceObject(placedObject);
+                    GameManager.Instance.AddObject(placedObject);
+
                     animator.SetTrigger("Place");
                     break;
   

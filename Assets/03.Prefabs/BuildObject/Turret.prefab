@@ -144,6 +144,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e6ed2a94d5e7fd418667328fd358c63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _maxHp: 3
   _turretBody: {fileID: 1573604202586388228}
   _gunBarrel: {fileID: 1569726712245556558}
   _firePos: {fileID: 1569699833926567828}
